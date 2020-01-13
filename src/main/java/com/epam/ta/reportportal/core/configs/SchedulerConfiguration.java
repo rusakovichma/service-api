@@ -64,7 +64,7 @@ public class SchedulerConfiguration {
 
 		scheduler.setQuartzProperties(quartzProperties.getQuartz());
 		scheduler.setDataSource(dataSource);
-		scheduler.setAutoStartup(true);  // to not automatically start after startup
+		scheduler.setAutoStartup(false);  // to not automatically start after startup
 		scheduler.setWaitForJobsToCompleteOnShutdown(true);
 		scheduler.setJobFactory(beanJobFactory());
 
