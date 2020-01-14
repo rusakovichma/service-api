@@ -5,13 +5,11 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     stage('JDK') {
-        steps {
-            sh 'java -version'
-            sh 'update-alternatives --list java'
-            sh 'javac -version'
-            sh 'update-alternatives --list javac'
-            sh 'echo $JAVA_HOME'
-        }
+        sh 'java -version'
+        sh 'update-alternatives --list java'
+        sh 'javac -version'
+        sh 'update-alternatives --list javac'
+        sh 'echo $JAVA_HOME'
     }
 
     stage('Checkout') {
