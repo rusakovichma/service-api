@@ -5,7 +5,6 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     stage('JDK') {
-        sh 'sudo update-java-alternatives -s java-11-openjdk-amd64'
         sh 'java -version'
         sh 'javac -version'
         sh 'echo $JAVA_HOME'
