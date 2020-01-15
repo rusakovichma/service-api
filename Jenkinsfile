@@ -4,8 +4,11 @@ node {
 
     load "$JENKINS_HOME/jobvars.env"
 
+    tools {
+        jdk 'openjdk-11'
+    }
+
     stage('JDK') {
-        sh "export JAVA_HOME=$JDK_11_HOME"
         sh 'java -version'
         sh 'javac -version'
         sh 'echo $JAVA_HOME'
