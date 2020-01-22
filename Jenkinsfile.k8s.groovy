@@ -9,11 +9,7 @@ podTemplate(
         label: "${label}",
         containers: [
                 containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine'),
-                containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true,
-                        resourceRequestCpu: '250m',
-                        resourceLimitCpu: '800m',
-                        resourceRequestMemory: '1024Mi',
-                        resourceLimitMemory: '2048Mi'),
+                containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug', command: '/busybox/cat', ttyEnabled: true),
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.2', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true),
@@ -26,8 +22,7 @@ podTemplate(
         ],
         imagePullSecrets: ["regcred"],
         volumes: [
-                hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
-                secretVolume(mountPath: '/etc/.dockercreds', secretName: 'docker-creds'),
+                secretVolume(mountPath: '/kaniko/.docker', secretName: 'dockerconfigjson-secret'),
                 secretVolume(mountPath: '/etc/.sealights-token', secretName: 'sealights-token'),
                 hostPathVolume(mountPath: '/root/.m2/repository', hostPath: '/tmp/jenkins/.m2/repository')
         ]
@@ -36,7 +31,8 @@ podTemplate(
     node("${label}") {
 
         def sealightsTokenPath = "/etc/.sealights-token/token"
-        def srvRepo = "quay.io/reportportal/service-api"
+//        def srvRepo = "quay.io/reportportal/service-api"
+        def srvRepo = "reportportal/service-api-dev"
         def sealightsAgentUrl = "https://agents.sealights.co/sealights-java/sealights-java-latest.zip"
         def sealightsAgentArchive = sealightsAgentUrl.substring(sealightsAgentUrl.lastIndexOf('/') + 1)
 
@@ -113,8 +109,10 @@ podTemplate(
         stage('Build Docker Image') {
             dir(appDir) {
                 container('docker') {
-                    sh "docker build -f docker/Dockerfile-develop --build-arg sealightsToken=$sealightsToken --build-arg sealightsSession=$sealightsSession --build-arg buildNumber=$buildVersion -t $tag ."
-                    sh "docker push $tag"
+//                    sh "docker build -f docker/Dockerfile-develop --build-arg sealightsToken=$sealightsToken --build-arg sealightsSession=$sealightsSession --build-arg buildNumber=$buildVersion -t $tag ."
+//                    sh "docker push $tag"
+                    sh "/kaniko/executor -f `pwd`/docker/Dockerfile-develop -c `pwd` --cache=true --destination=$tag --build-arg sealightsToken=$sealightsToken --build-arg sealightsSession=$sealightsSession --build-arg buildNumber=$buildVersion --cache-repo=$srvRepo"
+
                 }
             }
 
