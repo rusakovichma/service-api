@@ -79,7 +79,6 @@ podTemplate(
         def helm = load "${ciDir}/jenkins/scripts/helm.groovy"
         def docker = load "${ciDir}/jenkins/scripts/docker.groovy"
 
-        docker.init()
         helm.init()
         utils.scheduleRepoPoll()
 
@@ -101,11 +100,8 @@ podTemplate(
 
         stage('Build Docker Image') {
             dir(appDir) {
-                container('docker') {
-//                    sh "docker build -f docker/Dockerfile-develop --build-arg sealightsToken=$sealightsToken --build-arg sealightsSession=$sealightsSession --build-arg buildNumber=$buildVersion -t $tag ."
-//                    sh "docker push $tag"
+                container('kaniko') {
                     sh "/kaniko/executor -f `pwd`/docker/Dockerfile-develop -c `pwd` --cache=true --destination=$tag --build-arg sealightsToken=$sealightsToken --build-arg sealightsSession=$sealightsSession --build-arg buildNumber=$buildVersion --cache-repo=$srvRepo"
-
                 }
             }
 
