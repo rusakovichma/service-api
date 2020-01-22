@@ -20,7 +20,6 @@ podTemplate(
                         resourceLimitMemory: '3072Mi'),
                 containerTemplate(name: 'jre', image: 'openjdk:8-jre-alpine', command: 'cat', ttyEnabled: true)
         ],
-        imagePullSecrets: ["regcred"],
         volumes: [
                 secretVolume(mountPath: '/kaniko/.docker', secretName: 'dockerconfigjson-secret'),
                 secretVolume(mountPath: '/etc/.sealights-token', secretName: 'sealights-token'),
@@ -64,12 +63,6 @@ podTemplate(
             stage('Checkout Service') {
                 dir(appDir) {
                     git branch: branchToBuild, url: 'https://github.com/reportportal/service-api.git'
-                }
-            }
-        }, 'Checkout tests': {
-            stage('Checkout tests') {
-                dir(testDir) {
-                    git url: 'git@git.epam.com:EPM-RPP/tests.git', branch: "develop", credentialsId: 'epm-gitlab-key'
                 }
             }
         }, 'Download Sealights': {
@@ -146,25 +139,6 @@ podTemplate(
                 srvUrls.each{ip ->
                     test.checkVersion("http://$ip:8585", "$srvVersion")
                 }
-            }
-        }
-
-        def testEnv = 'gcp'
-        try {
-            stage('Integration tests') {
-                dir("${testDir}/${serviceName}") {
-                    container('maven') {
-                        echo "Running RP integration tests on env: ${testEnv}"
-                        writeFile(file: 'buildsession.txt', text: sealightsSession, encoding: "UTF-8")
-                        writeFile(file: 'sl-token.txt', text: sealightsToken, encoding: "UTF-8")
-                        sh "echo 'rp.attributes=v5:${testEnv};' >> src/test/resources/reportportal.properties"
-                        sh "mvn clean test -P build -Denv=${testEnv}"
-                    }
-                }
-            }
-        } finally {
-            dir("${testDir}/${serviceName}") {
-                junit 'target/surefire-reports/*.xml'
             }
         }
     }
