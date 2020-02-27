@@ -67,11 +67,12 @@ class EmailServerIntegrationServiceTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integrationType.setName(INTEGRATION_NAME);
 		integration.setType(integrationType);
 
 		//when
-		when(integrationRepository.findAllGlobalByType(integrationType)).thenReturn(Lists.newArrayList());
+		when(integrationRepository.findAllGlobalByTypeId(integrationType.getId())).thenReturn(Lists.newArrayList());
 		doNothing().when(emailService).testConnection();
 		when(mailServiceFactory.getEmailService(integration)).thenReturn(Optional.of(emailService));
 
@@ -86,11 +87,12 @@ class EmailServerIntegrationServiceTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integrationType.setName("email");
 		integration.setType(integrationType);
 
 		//when
-		when(integrationRepository.findAllGlobalByType(integrationType)).thenReturn(Lists.newArrayList());
+		when(integrationRepository.findAllGlobalByTypeId(integrationType.getId())).thenReturn(Lists.newArrayList());
 		when(mailServiceFactory.getEmailService(integration)).thenReturn(Optional.of(emailService));
 		doThrow(MessagingException.class).when(emailService).testConnection();
 

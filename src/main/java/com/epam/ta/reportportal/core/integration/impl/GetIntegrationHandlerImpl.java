@@ -163,7 +163,7 @@ public class GetIntegrationHandlerImpl implements GetIntegrationHandler {
 	public List<IntegrationResource> getGlobalIntegrations(String pluginName) {
 		IntegrationType integrationType = integrationTypeRepository.findByName(pluginName)
 				.orElseThrow(() -> new ReportPortalException(ErrorType.INTEGRATION_NOT_FOUND, pluginName));
-		return integrationRepository.findAllGlobalByType(integrationType)
+		return integrationRepository.findAllGlobalByTypeId(integrationType.getId())
 				.stream()
 				.map(TO_INTEGRATION_RESOURCE)
 				.collect(Collectors.toList());
@@ -182,7 +182,7 @@ public class GetIntegrationHandlerImpl implements GetIntegrationHandler {
 				.orElseThrow(() -> new ReportPortalException(ErrorType.PROJECT_NOT_FOUND, projectName));
 		IntegrationType integrationType = integrationTypeRepository.findByName(pluginName)
 				.orElseThrow(() -> new ReportPortalException(ErrorType.INTEGRATION_NOT_FOUND, pluginName));
-		return integrationRepository.findAllByProjectIdAndType(project.getId(), integrationType)
+		return integrationRepository.findAllByProjectIdAndTypeId(project.getId(), integrationType.getId())
 				.stream()
 				.map(TO_INTEGRATION_RESOURCE)
 				.collect(Collectors.toList());

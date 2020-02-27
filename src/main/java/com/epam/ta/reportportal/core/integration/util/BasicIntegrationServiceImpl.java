@@ -97,7 +97,7 @@ public class BasicIntegrationServiceImpl implements IntegrationService {
 
 	@Override
 	public boolean validateIntegration(Integration integration) {
-		List<Integration> global = integrationRepository.findAllGlobalByType(integration.getType());
+		List<Integration> global = integrationRepository.findAllGlobalByTypeId(integration.getType().getId());
 		BusinessRule.expect(global, List::isEmpty).verify(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
 				"Integration with type " + integration.getType().getName() + " is already exists"
 		);
@@ -106,7 +106,7 @@ public class BasicIntegrationServiceImpl implements IntegrationService {
 
 	@Override
 	public boolean validateIntegration(Integration integration, Project project) {
-		List<Integration> integrations = integrationRepository.findAllByProjectIdAndType(project.getId(), integration.getType());
+		List<Integration> integrations = integrationRepository.findAllByProjectIdAndTypeId(project.getId(), integration.getType().getId());
 		BusinessRule.expect(integrations, List::isEmpty).verify(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
 				"Integration with type " + integration.getType().getName() + " is already exists for project " + project.getName()
 		);

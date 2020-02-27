@@ -54,8 +54,9 @@ class BasicIntegrationServiceImplTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integration.setType(integrationType);
-		when(integrationRepository.findAllGlobalByType(integrationType)).thenReturn(Lists.newArrayList());
+		when(integrationRepository.findAllGlobalByTypeId(integrationType.getId())).thenReturn(Lists.newArrayList());
 
 		//when
 		boolean b = basicIntegrationService.validateIntegration(integration);
@@ -69,9 +70,10 @@ class BasicIntegrationServiceImplTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integrationType.setName("email");
 		integration.setType(integrationType);
-		when(integrationRepository.findAllGlobalByType(integrationType)).thenReturn(Lists.newArrayList(new Integration()));
+		when(integrationRepository.findAllGlobalByTypeId(integrationType.getId())).thenReturn(Lists.newArrayList(new Integration()));
 
 		//when
 		ReportPortalException exception = assertThrows(ReportPortalException.class,
@@ -87,12 +89,13 @@ class BasicIntegrationServiceImplTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integration.setType(integrationType);
 
 		Project project = new Project();
 		project.setId(1L);
 
-		when(integrationRepository.findAllByProjectIdAndType(1L, integrationType)).thenReturn(Lists.newArrayList());
+		when(integrationRepository.findAllByProjectIdAndTypeId(1L, integrationType.getId())).thenReturn(Lists.newArrayList());
 
 		//when
 		boolean b = basicIntegrationService.validateIntegration(integration, project);
@@ -106,6 +109,7 @@ class BasicIntegrationServiceImplTest {
 		//given
 		Integration integration = new Integration();
 		IntegrationType integrationType = new IntegrationType();
+		integrationType.setId(1L);
 		integrationType.setName("email");
 		integration.setType(integrationType);
 
@@ -113,7 +117,7 @@ class BasicIntegrationServiceImplTest {
 		project.setId(1L);
 		project.setName("default");
 
-		when(integrationRepository.findAllByProjectIdAndType(1L, integrationType)).thenReturn(Lists.newArrayList(new Integration()));
+		when(integrationRepository.findAllByProjectIdAndTypeId(1L, integrationType.getId())).thenReturn(Lists.newArrayList(new Integration()));
 
 		//when
 		ReportPortalException exception = assertThrows(ReportPortalException.class,

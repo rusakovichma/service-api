@@ -25,7 +25,6 @@ import com.epam.ta.reportportal.entity.project.Project;
 import com.epam.ta.reportportal.ws.model.activity.IntegrationActivityResource;
 import com.epam.ta.reportportal.ws.model.integration.IntegrationResource;
 import com.epam.ta.reportportal.ws.model.integration.IntegrationTypeResource;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Date;
@@ -83,7 +82,6 @@ class IntegrationConverterTest {
 		type.setAuthFlow(IntegrationAuthFlowEnum.BASIC);
 		type.setEnabled(true);
 		type.setId(1L);
-		type.setIntegrations(Sets.newHashSet(integration));
 		integration.setType(type);
 		final IntegrationParams params = new IntegrationParams();
 		final HashMap<String, Object> paramMap = new HashMap<>();
