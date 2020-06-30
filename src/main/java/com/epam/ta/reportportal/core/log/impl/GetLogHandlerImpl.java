@@ -23,6 +23,7 @@ import com.epam.ta.reportportal.commons.querygen.FilterCondition;
 import com.epam.ta.reportportal.commons.querygen.Queryable;
 import com.epam.ta.reportportal.core.item.TestItemService;
 import com.epam.ta.reportportal.core.log.GetLogHandler;
+import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.TestItemRepository;
 import com.epam.ta.reportportal.dao.constant.LogRepositoryConstants;
@@ -76,16 +77,17 @@ public class GetLogHandlerImpl implements GetLogHandler {
 	public static final String EXCLUDE_EMPTY_STEPS = "excludeEmptySteps";
 
 	private final LogRepository logRepository;
-
 	private final TestItemRepository testItemRepository;
-
 	private final TestItemService testItemService;
+	private final LaunchRepository launchRepository;
 
 	@Autowired
-	public GetLogHandlerImpl(LogRepository logRepository, TestItemRepository testItemRepository, TestItemService testItemService) {
+	public GetLogHandlerImpl(LogRepository logRepository, TestItemRepository testItemRepository, TestItemService testItemService,
+			LaunchRepository launchRepository) {
 		this.logRepository = logRepository;
 		this.testItemRepository = testItemRepository;
 		this.testItemService = testItemService;
+		this.launchRepository = launchRepository;
 	}
 
 	@Override
@@ -168,7 +170,8 @@ public class GetLogHandlerImpl implements GetLogHandler {
 	 */
 	private void validate(Log log, ReportPortalUser.ProjectDetails projectDetails) {
 		Long launchProjectId = ofNullable(log.getTestItem()).map(it -> testItemService.getEffectiveLaunch(it).getProjectId())
-				.orElseGet(() -> log.getLaunch().getProjectId());
+				.orElseGet(() -> launchRepository.findById(log.getLaunchId()).map(Launch::getProjectId)
+						.orElseThrow(() -> new ReportPortalException(ErrorType.LAUNCH_NOT_FOUND, log.getLaunchId())));
 
 		expect(launchProjectId, equalTo(projectDetails.getProjectId())).verify(FORBIDDEN_OPERATION,
 				formattedSupplier("Log '{}' is not under '{}' project", log.getId(), projectDetails.getProjectName())

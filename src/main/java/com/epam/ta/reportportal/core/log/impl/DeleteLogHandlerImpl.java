@@ -21,6 +21,7 @@ import com.epam.ta.reportportal.commons.ReportPortalUser;
 import com.epam.ta.reportportal.core.analyzer.auto.LogIndexer;
 import com.epam.ta.reportportal.core.item.TestItemService;
 import com.epam.ta.reportportal.core.log.DeleteLogHandler;
+import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.enums.StatusEnum;
@@ -62,15 +63,19 @@ public class DeleteLogHandlerImpl implements DeleteLogHandler {
 
 	private final ProjectRepository projectRepository;
 
+	private final LaunchRepository launchRepository;
+
 	private final TestItemService testItemService;
 
 	private final LogIndexer logIndexer;
 
 	public DeleteLogHandlerImpl(LogRepository logRepository, AttachmentBinaryDataService attachmentBinaryDataService,
-			ProjectRepository projectRepository, TestItemService testItemService, LogIndexer logIndexer) {
+			ProjectRepository projectRepository, LaunchRepository launchRepository, TestItemService testItemService,
+			LogIndexer logIndexer) {
 		this.logRepository = logRepository;
 		this.attachmentBinaryDataService = attachmentBinaryDataService;
 		this.projectRepository = projectRepository;
+		this.launchRepository = launchRepository;
 		this.testItemService = testItemService;
 		this.logIndexer = logIndexer;
 	}
@@ -116,7 +121,9 @@ public class DeleteLogHandlerImpl implements DeleteLogHandler {
 		Log log = logRepository.findById(logId).orElseThrow(() -> new ReportPortalException(ErrorType.LOG_NOT_FOUND, logId));
 
 		Optional<TestItem> itemOptional = ofNullable(log.getTestItem());
-		Launch launch = ofNullable(log.getTestItem()).map(testItemService::getEffectiveLaunch).orElseGet(log::getLaunch);
+		Launch launch = ofNullable(log.getTestItem()).map(testItemService::getEffectiveLaunch)
+				.orElseGet(() -> launchRepository.findById(log.getLaunchId())
+						.orElseThrow(() -> new ReportPortalException(LAUNCH_NOT_FOUND, log.getLaunchId())));
 
 		//TODO check if statistics is right in item results
 		if (itemOptional.isPresent()) {

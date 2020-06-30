@@ -53,7 +53,7 @@ public class LogBuilder implements Supplier<Log> {
 	}
 
 	public LogBuilder addLaunch(Launch launch) {
-		log.setLaunch(launch);
+		log.setLaunchId(launch.getId());
 		return this;
 	}
 
