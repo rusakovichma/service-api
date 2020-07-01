@@ -76,7 +76,7 @@ class DemoLogsService {
 		List<Log> logs = IntStream.range(1, logsCount).mapToObj(it -> {
 			Log log = new Log();
 			log.setLogLevel(infoLevel().toInt());
-			log.setLaunch(launch);
+			log.setLaunchId(launch.getId());
 			log.setLogTime(LocalDateTime.now());
 			log.setLogMessage(ContentUtils.getLogMessage());
 			log.setUuid(UUID.randomUUID().toString());
@@ -88,7 +88,7 @@ class DemoLogsService {
 				Log log = new Log();
 				log.setLogLevel(errorLevel().toInt());
 				log.setLogTime(LocalDateTime.now());
-				log.setLaunch(launch);
+				log.setLaunchId(launch.getId());
 				log.setLogMessage(msg);
 				log.setUuid(UUID.randomUUID().toString());
 				return log;
