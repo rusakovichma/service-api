@@ -87,11 +87,11 @@ rp:
     api-address: http://${rp.amqp.apiuser}:${rp.amqp.apipass}@${rp.amqp.host}:${rp.amqp.apiport}/api
     host: rabbitmq
     port: 5672
-    user:
-    pass:
+    user: rabbitmq
+    pass: rabbitmq
     apiport: 15672
-    apiuser:
-    apipass:
+    apiuser: rabbitmq
+    apipass: rabbitmq
     queues: 10
     queuesPerPod: 10
     reply-timeout: 300000 #milliseconds
@@ -114,8 +114,8 @@ rp:
     name: reportportal
     host: postgres
     port: 5432
-    user:
-    pass:
+    user: rpuser
+    pass: rppass
 
   upload:
     maxUploadSize: 128MB
