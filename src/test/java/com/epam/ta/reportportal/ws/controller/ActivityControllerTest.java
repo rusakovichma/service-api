@@ -78,4 +78,18 @@ class ActivityControllerTest extends BaseMvcTest {
                     .andExpect(status().is(403));
         }
     }
+
+    @Test
+    void getActivitiesForProjectAuthorizationTest() throws Exception {
+        final String activitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity";
+
+        mockMvc.perform(get(activitiesUrl).with(token(oAuthHelper.getAnonymousToken())))
+                .andExpect(status().is(401));
+
+        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(), oAuthHelper.getProject2CustomerToken()};
+        for (String anotherProjectMemberToken : anotherProjectMembers) {
+            mockMvc.perform(get(activitiesUrl).with(token(anotherProjectMemberToken)))
+                    .andExpect(status().is(403));
+        }
+    }
 }
