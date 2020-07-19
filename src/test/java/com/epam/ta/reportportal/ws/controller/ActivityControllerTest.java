@@ -68,28 +68,18 @@ class ActivityControllerTest extends BaseMvcTest {
     @Test
     void getItemActivitiesAuthorizationTest() throws Exception {
         final String itemActivitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity/item/1";
+        authorizationTest(itemActivitiesUrl);
+    }
 
-        mockMvc.perform(get(itemActivitiesUrl).with(token(oAuthHelper.getAnonymousToken())))
-                .andExpect(status().is(401));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(), oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(get(itemActivitiesUrl).with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
-        }
+    @Test
+    void getItemActivityAuthorizationTest() throws Exception {
+        final String itemActivitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity/1";
+        authorizationTest(itemActivitiesUrl);
     }
 
     @Test
     void getActivitiesForProjectAuthorizationTest() throws Exception {
         final String activitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity";
-
-        mockMvc.perform(get(activitiesUrl).with(token(oAuthHelper.getAnonymousToken())))
-                .andExpect(status().is(401));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(), oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(get(activitiesUrl).with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
-        }
+        authorizationTest(activitiesUrl);
     }
 }

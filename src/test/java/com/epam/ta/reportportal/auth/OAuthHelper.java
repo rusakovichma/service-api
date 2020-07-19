@@ -37,49 +37,73 @@ import java.util.stream.Collectors;
 @Component
 public class OAuthHelper {
 
-	@Autowired
-	private AuthorizationServerTokenServices tokenService;
+    @Autowired
+    private AuthorizationServerTokenServices tokenService;
 
-	private String defaultToken;
+    private String defaultToken;
+    private String superadminToken;
+    private String project2MemberToken;
+    private String project2ManagerToken;
+    private String project2CustomerToken;
 
-	private String superadminToken;
+    public String getAnonymousToken() {
+        return null;
+    }
 
-	public String getDefaultToken() {
-		return defaultToken == null ? defaultToken = createAccessToken("default", "1q2w3e", UserRole.USER).getValue() : defaultToken;
-	}
+    public String getDefaultToken() {
+        return defaultToken == null ? defaultToken = createAccessToken("default", "1q2w3e", UserRole.USER).getValue() : defaultToken;
+    }
 
-	public String getSuperadminToken() {
-		return superadminToken == null ?
-				superadminToken = createAccessToken("superadmin", "erebus", UserRole.ADMINISTRATOR).getValue() :
-				superadminToken;
-	}
+    public String getSuperadminToken() {
+        return superadminToken == null ?
+                superadminToken = createAccessToken("superadmin", "erebus", UserRole.ADMINISTRATOR).getValue() :
+                superadminToken;
+    }
 
-	private OAuth2AccessToken createAccessToken(String username, String password, UserRole... roles) {
-		Collection<GrantedAuthority> authorities = Arrays.stream(roles)
-				.map(it -> new SimpleGrantedAuthority(it.getAuthority()))
-				.collect(Collectors.toList());
+    public String getProject2MemberToken() {
+        return project2MemberToken == null ?
+                project2MemberToken = createAccessToken("project2_member", "1q2w3e", UserRole.USER).getValue() :
+                project2MemberToken;
+    }
 
-		Set<String> scopes = Collections.singleton("ui");
+    public String getProject2ManagerToken() {
+        return project2ManagerToken == null ?
+                project2ManagerToken = createAccessToken("project2_manager", "1q2w3e", UserRole.USER).getValue() :
+                project2ManagerToken;
+    }
 
-		Map<String, String> requestParameters = new HashMap<>();
-		requestParameters.put("password", password);
-		requestParameters.put("grand_type", "password");
-		requestParameters.put("username", username);
+    public String getProject2CustomerToken() {
+        return project2CustomerToken == null ?
+                project2CustomerToken = createAccessToken("project2_customer", "1q2w3e", UserRole.USER).getValue() :
+                project2MemberToken;
+    }
 
-		OAuth2Request oAuth2Request = new OAuth2Request(
-				requestParameters,
-				"ui",
-				authorities,
-				true,
-				scopes,
-				Collections.emptySet(),
-				null,
-				Collections.emptySet(),
-				Collections.emptyMap()
-		);
-		User userPrincipal = new User(username, password, true, true, true, true, authorities);
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
-		OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
-		return tokenService.createAccessToken(auth);
-	}
+    private OAuth2AccessToken createAccessToken(String username, String password, UserRole... roles) {
+        Collection<GrantedAuthority> authorities = Arrays.stream(roles)
+                .map(it -> new SimpleGrantedAuthority(it.getAuthority()))
+                .collect(Collectors.toList());
+
+        Set<String> scopes = Collections.singleton("ui");
+
+        Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put("password", password);
+        requestParameters.put("grand_type", "password");
+        requestParameters.put("username", username);
+
+        OAuth2Request oAuth2Request = new OAuth2Request(
+                requestParameters,
+                "ui",
+                authorities,
+                true,
+                scopes,
+                Collections.emptySet(),
+                null,
+                Collections.emptySet(),
+                Collections.emptyMap()
+        );
+        User userPrincipal = new User(username, password, true, true, true, true, authorities);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
+        OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
+        return tokenService.createAccessToken(auth);
+    }
 }

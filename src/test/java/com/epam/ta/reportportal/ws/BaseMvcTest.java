@@ -40,6 +40,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * @author <a href="mailto:ihar_kahadouski@epam.com">Ihar Kahadouski</a>
  */
@@ -48,44 +51,57 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @ActiveProfiles("unittest")
 @ContextConfiguration(classes = TestConfig.class)
-@TestExecutionListeners(listeners = { FlywayTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = {FlywayTestExecutionListener.class}, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Transactional
 public abstract class BaseMvcTest {
 
-	protected static final String DEFAULT_PROJECT_BASE_URL = "/v1/default_personal";
-	protected static final String SUPERADMIN_PROJECT_BASE_URL = "/v1/superadmin_personal";
+    protected static final String DEFAULT_PROJECT_BASE_URL = "/v1/default_personal";
+    protected static final String SUPERADMIN_PROJECT_BASE_URL = "/v1/superadmin_personal";
 
-	@Autowired
-	protected OAuthHelper oAuthHelper;
+    @Autowired
+    protected OAuthHelper oAuthHelper;
 
-	@Autowired
-	protected MockMvc mockMvc;
+    @Autowired
+    protected MockMvc mockMvc;
 
-	@MockBean
-	protected MessageBus messageBus;
+    @MockBean
+    protected MessageBus messageBus;
 
-	@MockBean
-	protected MailServiceFactory mailServiceFactory;
+    @MockBean
+    protected MailServiceFactory mailServiceFactory;
 
-	@MockBean
-	protected Pf4jPluginBox pluginBox;
+    @MockBean
+    protected Pf4jPluginBox pluginBox;
 
-	@Mock
-	protected BtsExtension extension;
+    @Mock
+    protected BtsExtension extension;
 
-	@Mock
-	protected EmailService emailService;
+    @Mock
+    protected EmailService emailService;
 
-	@FlywayTest
-	@BeforeAll
-	public static void before() {
-	}
+    @FlywayTest
+    @BeforeAll
+    public static void before() {
+    }
 
-	protected RequestPostProcessor token(String tokenValue) {
-		return mockRequest -> {
-			mockRequest.addHeader("Authorization", "Bearer " + tokenValue);
-			return mockRequest;
-		};
-	}
+    protected RequestPostProcessor token(String tokenValue) {
+        return mockRequest -> {
+            mockRequest.addHeader("Authorization", "Bearer " + tokenValue);
+            return mockRequest;
+        };
+    }
+
+    protected void authorizationTest(String url) throws Exception {
+        mockMvc.perform(get(url).with(token(oAuthHelper.getAnonymousToken())))
+                .andExpect(status().is(401));
+
+        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
+                oAuthHelper.getProject2ManagerToken(),
+                oAuthHelper.getProject2CustomerToken()};
+        for (String anotherProjectMemberToken : anotherProjectMembers) {
+            mockMvc.perform(get(url).with(token(anotherProjectMemberToken)))
+                    .andExpect(status().is(403));
+        }
+    }
 
 }
