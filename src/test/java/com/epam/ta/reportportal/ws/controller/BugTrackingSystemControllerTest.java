@@ -46,139 +46,197 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql("/db/bts/bts-integration-fill.sql")
 class BugTrackingSystemControllerTest extends BaseMvcTest {
 
-	@Autowired
-	private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-	@Test
-	@Disabled
-	void updateGlobalBtsIntegration() throws Exception {
+    @Test
+    @Disabled
+    void updateGlobalBtsIntegration() throws Exception {
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.testConnection(any(Integration.class))).thenReturn(true);
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.testConnection(any(Integration.class))).thenReturn(true);
 
-		IntegrationRQ request = getUpdateRQ();
+        IntegrationRQ request = getUpdateRQ();
 
-		mockMvc.perform(put("/v1/integration" + "/9").with(token(oAuthHelper.getSuperadminToken()))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))).andExpect(status().isOk());
-	}
+        mockMvc.perform(put("/v1/integration" + "/9").with(token(oAuthHelper.getSuperadminToken()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(request))).andExpect(status().isOk());
+    }
 
-	@Test
-	@Disabled
-	void updateProjectBtsIntegration() throws Exception {
+    @Test
+    @Disabled
+    void updateProjectBtsIntegration() throws Exception {
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.testConnection(any(Integration.class))).thenReturn(true);
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.testConnection(any(Integration.class))).thenReturn(true);
 
-		IntegrationRQ request = getUpdateRQ();
+        IntegrationRQ request = getUpdateRQ();
 
-		mockMvc.perform(put("/v1/integration/superadmin_personal/10").with(token(oAuthHelper.getSuperadminToken()))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))).andExpect(status().isOk());
-	}
+        mockMvc.perform(put("/v1/integration/superadmin_personal/10").with(token(oAuthHelper.getSuperadminToken()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(request))).andExpect(status().isOk());
+    }
 
-	@Test
-	@Disabled
-	void checkConnection() throws Exception {
+    @Test
+    @Disabled
+    void checkConnection() throws Exception {
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.testConnection(any(Integration.class))).thenReturn(true);
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.testConnection(any(Integration.class))).thenReturn(true);
 
-		mockMvc.perform(get(SUPERADMIN_PROJECT_BASE_URL + "/integration/10/connection/test").with(token(oAuthHelper.getSuperadminToken())));
-	}
+        mockMvc.perform(get(SUPERADMIN_PROJECT_BASE_URL + "/integration/10/connection/test").with(token(oAuthHelper.getSuperadminToken())));
+    }
 
-	@Test
-	void getSetOfIntegrationSystemFields() throws Exception {
+    @Test
+    void getSetOfIntegrationSystemFields() throws Exception {
 
-		Map<String, List<String>> params = Maps.newHashMap();
-		params.put("issueType", Lists.newArrayList("ISSUE01"));
+        Map<String, List<String>> params = Maps.newHashMap();
+        params.put("issueType", Lists.newArrayList("ISSUE01"));
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.getTicketFields(any(String.class), any(Integration.class))).thenReturn(Lists.newArrayList(new PostFormField()));
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.getTicketFields(any(String.class), any(Integration.class))).thenReturn(Lists.newArrayList(new PostFormField()));
 
-		mockMvc.perform(get("/v1/bts/superadmin_personal/10/fields-set").params(CollectionUtils.toMultiValueMap(params))
-				.with(token(oAuthHelper.getSuperadminToken()))).andExpect(status().isOk());
-	}
+        mockMvc.perform(get("/v1/bts/superadmin_personal/10/fields-set").params(CollectionUtils.toMultiValueMap(params))
+                .with(token(oAuthHelper.getSuperadminToken()))).andExpect(status().isOk());
+    }
 
-	@Test
-	void getAllowableIssueTypes() throws Exception {
+    @Test
+    void getSetOfIntegrationSystemFieldsAuthorizationTest() throws Exception {
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.getIssueTypes(any(Integration.class))).thenReturn(Lists.newArrayList("type1", "type2"));
+        Map<String, List<String>> params = Maps.newHashMap();
+        params.put("issueType", Lists.newArrayList("ISSUE01"));
 
-		mockMvc.perform(get("/v1/bts/superadmin_personal/10/issue_types").with(token(oAuthHelper.getSuperadminToken())))
-				.andExpect(status().isOk());
-	}
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.getTicketFields(any(String.class), any(Integration.class))).thenReturn(Lists.newArrayList(new PostFormField()));
 
-	@Test
-	void createIssue() throws Exception {
+        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
+                oAuthHelper.getProject2ManagerToken(),
+                oAuthHelper.getProject2CustomerToken()};
+        for (String anotherProjectMemberToken : anotherProjectMembers) {
+            mockMvc.perform(get("/v1/bts/superadmin_personal/10/fields-set").params(CollectionUtils.toMultiValueMap(params))
+                    .with(token(anotherProjectMemberToken))).andExpect(status().isForbidden());
+        }
+    }
 
-		PostTicketRQ request = getPostTicketRQ();
+    @Test
+    void getAllowableIssueTypes() throws Exception {
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.submitTicket(any(PostTicketRQ.class), any(Integration.class))).thenReturn(new Ticket());
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.getIssueTypes(any(Integration.class))).thenReturn(Lists.newArrayList("type1", "type2"));
 
-		mockMvc.perform(post("/v1/bts/superadmin_personal/10/ticket").with(token(oAuthHelper.getSuperadminToken()))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))).andExpect(status().isCreated());
-	}
+        mockMvc.perform(get("/v1/bts/superadmin_personal/10/issue_types").with(token(oAuthHelper.getSuperadminToken())))
+                .andExpect(status().isOk());
+    }
 
-	@Test
-	void getTicket() throws Exception {
+    @Test
+    void createIssue() throws Exception {
 
-		final String ticketId = "/ticket_id";
+        PostTicketRQ request = getPostTicketRQ();
 
-		Map<String, List<String>> params = Maps.newHashMap();
-		params.put("btsUrl", Lists.newArrayList("jira.com"));
-		params.put("btsProject", Lists.newArrayList("project"));
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.submitTicket(any(PostTicketRQ.class), any(Integration.class))).thenReturn(new Ticket());
 
-		when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-		when(extension.getTicket(any(String.class), any(Integration.class))).thenReturn(java.util.Optional.of(new Ticket()));
+        mockMvc.perform(post("/v1/bts/superadmin_personal/10/ticket").with(token(oAuthHelper.getSuperadminToken()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(request))).andExpect(status().isCreated());
+    }
 
-		mockMvc.perform(get("/v1/bts/superadmin_personal/ticket" + ticketId).params(CollectionUtils.toMultiValueMap(params))
-				.with(token(oAuthHelper.getSuperadminToken()))).andExpect(status().isOk());
-	}
+    @Test
+    void createIssueAuthorizationTest() throws Exception {
 
-	private IntegrationRQ getUpdateRQ() {
+        PostTicketRQ request = getPostTicketRQ();
 
-		IntegrationRQ integrationRQ = new IntegrationRQ();
-		integrationRQ.setEnabled(true);
-		integrationRQ.setName("jira1");
-		Map<String, Object> integrationParams = new HashMap<>();
-		integrationParams.put("defectFormFields", getPostFormFields());
-		integrationRQ.setIntegrationParams(integrationParams);
-		return integrationRQ;
-	}
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.submitTicket(any(PostTicketRQ.class), any(Integration.class))).thenReturn(new Ticket());
 
-	private BtsConnectionTestRQ getConnectionRQ() {
-		BtsConnectionTestRQ connectionTestRQ = new BtsConnectionTestRQ();
-		connectionTestRQ.setUrl("url");
-		connectionTestRQ.setBtsProject("project");
+        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
+                oAuthHelper.getProject2ManagerToken(),
+                oAuthHelper.getProject2CustomerToken()};
+        for (String anotherProjectMemberToken : anotherProjectMembers) {
+            mockMvc.perform(post("/v1/bts/superadmin_personal/10/ticket").with(token(anotherProjectMemberToken))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsBytes(request))).andExpect(status().isForbidden());
+        }
 
-		return connectionTestRQ;
-	}
+    }
 
-	private PostTicketRQ getPostTicketRQ() {
-		PostTicketRQ postTicketRQ = new PostTicketRQ();
-		postTicketRQ.setFields(getPostFormFields());
-		postTicketRQ.setNumberOfLogs(10);
-		postTicketRQ.setIsIncludeScreenshots(false);
-		postTicketRQ.setIsIncludeComments(false);
-		postTicketRQ.setTestItemId(1L);
+    @Test
+    void getTicket() throws Exception {
 
-		return postTicketRQ;
-	}
+        final String ticketId = "/ticket_id";
 
-	private List<PostFormField> getPostFormFields() {
+        Map<String, List<String>> params = Maps.newHashMap();
+        params.put("btsUrl", Lists.newArrayList("jira.com"));
+        params.put("btsProject", Lists.newArrayList("project"));
 
-		PostFormField field = new PostFormField("id",
-				"name",
-				"type",
-				true,
-				Lists.newArrayList("value"),
-				Lists.newArrayList(new AllowedValue("id", "name"))
-		);
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.getTicket(any(String.class), any(Integration.class))).thenReturn(java.util.Optional.of(new Ticket()));
 
-		return Lists.newArrayList(field);
-	}
+        mockMvc.perform(get("/v1/bts/superadmin_personal/ticket" + ticketId).params(CollectionUtils.toMultiValueMap(params))
+                .with(token(oAuthHelper.getSuperadminToken()))).andExpect(status().isOk());
+    }
+
+    @Test
+    void getTicketAuthorizationTest() throws Exception {
+        final String ticketId = "/ticket_id";
+
+        Map<String, List<String>> params = Maps.newHashMap();
+        params.put("btsUrl", Lists.newArrayList("jira.com"));
+        params.put("btsProject", Lists.newArrayList("project"));
+
+        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
+        when(extension.getTicket(any(String.class), any(Integration.class))).thenReturn(java.util.Optional.of(new Ticket()));
+
+        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
+                oAuthHelper.getProject2ManagerToken(),
+                oAuthHelper.getProject2CustomerToken()};
+        for (String anotherProjectMemberToken : anotherProjectMembers) {
+            mockMvc.perform(get("/v1/bts/superadmin_personal/ticket" + ticketId).params(CollectionUtils.toMultiValueMap(params))
+                    .with(token(anotherProjectMemberToken))).andExpect(status().isForbidden());
+        }
+    }
+
+
+    private IntegrationRQ getUpdateRQ() {
+
+        IntegrationRQ integrationRQ = new IntegrationRQ();
+        integrationRQ.setEnabled(true);
+        integrationRQ.setName("jira1");
+        Map<String, Object> integrationParams = new HashMap<>();
+        integrationParams.put("defectFormFields", getPostFormFields());
+        integrationRQ.setIntegrationParams(integrationParams);
+        return integrationRQ;
+    }
+
+    private BtsConnectionTestRQ getConnectionRQ() {
+        BtsConnectionTestRQ connectionTestRQ = new BtsConnectionTestRQ();
+        connectionTestRQ.setUrl("url");
+        connectionTestRQ.setBtsProject("project");
+
+        return connectionTestRQ;
+    }
+
+    private PostTicketRQ getPostTicketRQ() {
+        PostTicketRQ postTicketRQ = new PostTicketRQ();
+        postTicketRQ.setFields(getPostFormFields());
+        postTicketRQ.setNumberOfLogs(10);
+        postTicketRQ.setIsIncludeScreenshots(false);
+        postTicketRQ.setIsIncludeComments(false);
+        postTicketRQ.setTestItemId(1L);
+
+        return postTicketRQ;
+    }
+
+    private List<PostFormField> getPostFormFields() {
+
+        PostFormField field = new PostFormField("id",
+                "name",
+                "type",
+                true,
+                Lists.newArrayList("value"),
+                Lists.newArrayList(new AllowedValue("id", "name"))
+        );
+
+        return Lists.newArrayList(field);
+    }
 }
