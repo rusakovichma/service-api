@@ -40,9 +40,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 /**
  * @author <a href="mailto:ihar_kahadouski@epam.com">Ihar Kahadouski</a>
  */
@@ -89,19 +86,6 @@ public abstract class BaseMvcTest {
             mockRequest.addHeader("Authorization", "Bearer " + tokenValue);
             return mockRequest;
         };
-    }
-
-    protected void authorizationTest(String url) throws Exception {
-        mockMvc.perform(get(url).with(token(oAuthHelper.getAnonymousToken())))
-                .andExpect(status().is(401));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(get(url).with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
-        }
     }
 
 }

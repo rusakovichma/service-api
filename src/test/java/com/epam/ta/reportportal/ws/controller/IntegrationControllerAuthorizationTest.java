@@ -1,5 +1,7 @@
 package com.epam.ta.reportportal.ws.controller;
 
+import com.epam.ta.reportportal.security.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.epam.ta.reportportal.ws.model.integration.IntegrationRQ;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,19 +39,12 @@ public class IntegrationControllerAuthorizationTest extends BaseMvcTest {
         doNothing().when(emailService).testConnection();
 
         final String integrationUrl = "/v1/integration/email";
-        mockMvc.perform(post(integrationUrl).with(token(oAuthHelper.getAnonymousToken()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                .andExpect(status().is(401));
 
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(post(integrationUrl).with(token(anotherProjectMemberToken))
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
+            mockMvc.perform(post(integrationUrl).with(token(entry.getAccessToken()))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                    .andExpect(status().is(403));
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
@@ -58,19 +53,12 @@ public class IntegrationControllerAuthorizationTest extends BaseMvcTest {
         doNothing().when(emailService).testConnection();
 
         final String integrationUrl = "/v1/integration/default_personal/email";
-        mockMvc.perform(post(integrationUrl).with(token(oAuthHelper.getDefaultToken()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                .andExpect(status().is(401));
 
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(post(integrationUrl).with(token(anotherProjectMemberToken))
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
+            mockMvc.perform(post(integrationUrl).with(token(entry.getAccessToken()))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                    .andExpect(status().is(403));
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
@@ -80,19 +68,11 @@ public class IntegrationControllerAuthorizationTest extends BaseMvcTest {
 
         final String integrationUrl = "/v1/integration/7";
 
-        mockMvc.perform(put(integrationUrl).with(token(oAuthHelper.getAnonymousToken()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                .andExpect(status().is(401));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(put(integrationUrl).with(token(anotherProjectMemberToken))
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
+            mockMvc.perform(put(integrationUrl).with(token(entry.getAccessToken()))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                    .andExpect(status().is(403));
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
@@ -102,148 +82,112 @@ public class IntegrationControllerAuthorizationTest extends BaseMvcTest {
 
         final String integrationUrl = "/v1/integration/default_personal/8";
 
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(put(integrationUrl).with(token(anotherProjectMemberToken))
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
+            mockMvc.perform(put(integrationUrl).with(token(entry.getAccessToken()))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsBytes(getIntegrationRQSample())))
-                    .andExpect(status().is(403));
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getAllGlobalAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/global/all")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getAllGlobalByTypeAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/global/all/jira")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getAllProjectAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/project/superadmin_personal/all")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getAllProjectByTypeAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/project/superadmin_personal/all/jira")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getGlobalIntegrationAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/7")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void deleteGlobalIntegrationAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(delete("/v1/integration/7")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void deleteAllIntegrationsAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(delete("/v1/integration/all/email")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void getProjectIntegrationAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/default_personal/8")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
 
     }
 
     @Test
     void testProjectIntegrationConnectionAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(get("/v1/integration/default_personal/8/connection/test")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
 
     @Test
     void deleteProjectIntegrationAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(delete("/v1/integration/default_personal/8")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
     @Test
     void deleteAllProjectIntegrationsAuthorization() throws Exception {
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
+        for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
             mockMvc.perform(delete("/v1/integration/default_personal/all/email")
-                    .with(token(anotherProjectMemberToken)))
-                    .andExpect(status().is(403));
+                    .with(token(entry.getAccessToken())))
+                    .andExpect(status().is(entry.getAccessStatus()));
         }
     }
 
