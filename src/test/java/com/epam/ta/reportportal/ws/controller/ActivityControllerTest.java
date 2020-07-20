@@ -65,21 +65,4 @@ class ActivityControllerTest extends BaseMvcTest {
         mockMvc.perform(get(DEFAULT_PROJECT_BASE_URL + "/activity").with(token(oAuthHelper.getDefaultToken()))).andExpect(status().is(200));
     }
 
-    @Test
-    void getItemActivitiesAuthorizationTest() throws Exception {
-        final String itemActivitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity/item/1";
-        authorizationTest(itemActivitiesUrl);
-    }
-
-    @Test
-    void getItemActivityAuthorizationTest() throws Exception {
-        final String itemActivitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity/1";
-        authorizationTest(itemActivitiesUrl);
-    }
-
-    @Test
-    void getActivitiesForProjectAuthorizationTest() throws Exception {
-        final String activitiesUrl = DEFAULT_PROJECT_BASE_URL + "/activity";
-        authorizationTest(activitiesUrl);
-    }
 }
