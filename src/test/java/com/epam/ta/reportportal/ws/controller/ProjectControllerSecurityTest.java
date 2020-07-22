@@ -104,5 +104,35 @@ public class ProjectControllerSecurityTest extends BaseMvcTest {
         }
     }
 
+    @Test
+    void searchProjectNamesGenericInjectionTest() throws Exception {
+        for (final String injectionPayload : new GenericInjectionPayloadsReader()) {
+            final MvcResult result = mockMvc.perform(get(
+                    "/v1/project/names/search?term=" + injectionPayload)
+                    .with(token(oAuthHelper.getSuperadminToken()))).andReturn();
+
+            final MockHttpServletResponse response = result.getResponse();
+
+            String[] payloadsToExclude = {"SLEEP", "#"};
+            final List<String> payloadsToExcludeList = Arrays.asList(payloadsToExclude);
+
+            boolean exclude = false;
+            for (String excluded : payloadsToExcludeList) {
+                if (injectionPayload.strip().startsWith(excluded) || injectionPayload.contains(excluded)) {
+                    exclude = true;
+                }
+            }
+
+            if (!exclude) {
+                assertTrue(response.getContentAsString().contains("[]"),
+                        String.format("Response: [%s], Payload: [%s]",
+                                response.getContentAsString(),
+                                injectionPayload
+                        ));
+            }
+
+        }
+    }
+
 
 }
