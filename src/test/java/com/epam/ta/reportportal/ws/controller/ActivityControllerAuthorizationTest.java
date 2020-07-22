@@ -9,7 +9,7 @@ import org.springframework.test.context.jdbc.Sql;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql("/db/activity/activity-fill.sql")
+@Sql({"/db/activity/activity-fill.sql", "/db/security/authorization_verification.sql"})
 public class ActivityControllerAuthorizationTest extends BaseMvcTest {
     @Test
     void getItemActivitiesAuthorizationTest() throws Exception {

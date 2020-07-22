@@ -30,7 +30,7 @@ public class ClassPathUtil {
         return filenames;
     }
 
-    private static InputStream getResourceAsStream(String resource) {
+    public static InputStream getResourceAsStream(String resource) {
         final InputStream in
                 = getContextClassLoader().getResourceAsStream(resource);
 

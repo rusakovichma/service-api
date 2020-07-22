@@ -40,7 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql("/db/launch/launch-fill.sql")
+@Sql({"/db/launch/launch-fill.sql", "/db/security/authorization_verification.sql"})
 public class LaunchControllerAuthorizationTest extends BaseMvcTest {
 
     @Autowired

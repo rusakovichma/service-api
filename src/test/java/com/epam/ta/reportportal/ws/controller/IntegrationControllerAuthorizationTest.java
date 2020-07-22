@@ -17,7 +17,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql("/db/integration/integration-fill.sql")
+@Sql({"/db/integration/integration-fill.sql", "/db/security/authorization_verification.sql"})
 public class IntegrationControllerAuthorizationTest extends BaseMvcTest {
 
     @Autowired

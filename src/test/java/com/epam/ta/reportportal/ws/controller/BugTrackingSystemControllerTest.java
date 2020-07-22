@@ -101,24 +101,6 @@ class BugTrackingSystemControllerTest extends BaseMvcTest {
     }
 
     @Test
-    void getSetOfIntegrationSystemFieldsAuthorizationTest() throws Exception {
-
-        Map<String, List<String>> params = Maps.newHashMap();
-        params.put("issueType", Lists.newArrayList("ISSUE01"));
-
-        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-        when(extension.getTicketFields(any(String.class), any(Integration.class))).thenReturn(Lists.newArrayList(new PostFormField()));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(get("/v1/bts/superadmin_personal/10/fields-set").params(CollectionUtils.toMultiValueMap(params))
-                    .with(token(anotherProjectMemberToken))).andExpect(status().isForbidden());
-        }
-    }
-
-    @Test
     void getAllowableIssueTypes() throws Exception {
 
         when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
@@ -142,25 +124,6 @@ class BugTrackingSystemControllerTest extends BaseMvcTest {
     }
 
     @Test
-    void createIssueAuthorizationTest() throws Exception {
-
-        PostTicketRQ request = getPostTicketRQ();
-
-        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-        when(extension.submitTicket(any(PostTicketRQ.class), any(Integration.class))).thenReturn(new Ticket());
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(post("/v1/bts/superadmin_personal/10/ticket").with(token(anotherProjectMemberToken))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsBytes(request))).andExpect(status().isForbidden());
-        }
-
-    }
-
-    @Test
     void getTicket() throws Exception {
 
         final String ticketId = "/ticket_id";
@@ -176,29 +139,7 @@ class BugTrackingSystemControllerTest extends BaseMvcTest {
                 .with(token(oAuthHelper.getSuperadminToken()))).andExpect(status().isOk());
     }
 
-    @Test
-    void getTicketAuthorizationTest() throws Exception {
-        final String ticketId = "/ticket_id";
-
-        Map<String, List<String>> params = Maps.newHashMap();
-        params.put("btsUrl", Lists.newArrayList("jira.com"));
-        params.put("btsProject", Lists.newArrayList("project"));
-
-        when(pluginBox.getInstance("jira", BtsExtension.class)).thenReturn(java.util.Optional.ofNullable(extension));
-        when(extension.getTicket(any(String.class), any(Integration.class))).thenReturn(java.util.Optional.of(new Ticket()));
-
-        String[] anotherProjectMembers = {oAuthHelper.getProject2MemberToken(),
-                oAuthHelper.getProject2ManagerToken(),
-                oAuthHelper.getProject2CustomerToken()};
-        for (String anotherProjectMemberToken : anotherProjectMembers) {
-            mockMvc.perform(get("/v1/bts/superadmin_personal/ticket" + ticketId).params(CollectionUtils.toMultiValueMap(params))
-                    .with(token(anotherProjectMemberToken))).andExpect(status().isForbidden());
-        }
-    }
-
-
     private IntegrationRQ getUpdateRQ() {
-
         IntegrationRQ integrationRQ = new IntegrationRQ();
         integrationRQ.setEnabled(true);
         integrationRQ.setName("jira1");
@@ -206,14 +147,6 @@ class BugTrackingSystemControllerTest extends BaseMvcTest {
         integrationParams.put("defectFormFields", getPostFormFields());
         integrationRQ.setIntegrationParams(integrationParams);
         return integrationRQ;
-    }
-
-    private BtsConnectionTestRQ getConnectionRQ() {
-        BtsConnectionTestRQ connectionTestRQ = new BtsConnectionTestRQ();
-        connectionTestRQ.setUrl("url");
-        connectionTestRQ.setBtsProject("project");
-
-        return connectionTestRQ;
     }
 
     private PostTicketRQ getPostTicketRQ() {
