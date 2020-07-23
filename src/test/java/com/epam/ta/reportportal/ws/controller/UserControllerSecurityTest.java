@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -83,9 +84,13 @@ public class UserControllerSecurityTest extends BaseMvcTest {
     }
 
     private CreateUserRQFull getCreateUserRQFullSample() {
+        return getCreateUserRQFullSample("testPassword");
+    }
+
+    private CreateUserRQFull getCreateUserRQFullSample(String password) {
         CreateUserRQFull rq = new CreateUserRQFull();
         rq.setLogin("testLogin");
-        rq.setPassword("testPassword");
+        rq.setPassword(password);
         rq.setFullName("Test User");
         rq.setEmail("test@test.com");
         rq.setAccountRole("USER");
@@ -114,6 +119,47 @@ public class UserControllerSecurityTest extends BaseMvcTest {
         verify(emailService).sendCreateUserConfirmationEmail(createUserRequestCaptor.capture(), urlCaptor.capture());
 
         assertFalse(urlCaptor.getValue().startsWith("http://www.attacker.com"));
+    }
+
+    @Test
+    void createUserByAdminWeakPasswordTest() throws Exception {
+        final String weakPassword = "1111";
+        CreateUserRQFull rq = getCreateUserRQFullSample(weakPassword);
+
+        MvcResult mvcResult = mockMvc.perform(post("/v1/user")
+                .with(token(oAuthHelper.getSuperadminToken()))
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(rq)))
+                .andReturn();
+
+        assertFalse(mvcResult.getResponse().getStatus() == HttpStatus.CREATED.value());
+    }
+
+    private CreateUserRQConfirm getCreateUserRQConfirm(String password) {
+        CreateUserRQConfirm rq = new CreateUserRQConfirm();
+        rq.setLogin("testLogin");
+        rq.setPassword(password);
+        rq.setFullName("Test User");
+        rq.setEmail("test@domain.com");
+        return rq;
+    }
+
+    private CreateUserRQConfirm getCreateUserRQConfirm() {
+        return getCreateUserRQConfirm("testPassword");
+    }
+
+    @Test
+    void createUserWeakPasswordTest() throws Exception {
+        final String weakPassword = "1111";
+        CreateUserRQConfirm rq = getCreateUserRQConfirm(weakPassword);
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/v1/user/registration?uuid=e5f98deb-8966-4b2d-ba2f-35bc69d30c06")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(rq)))
+                .andReturn();
+
+        assertFalse(mvcResult.getResponse().getStatus() == HttpStatus.CREATED.value());
     }
 
 
