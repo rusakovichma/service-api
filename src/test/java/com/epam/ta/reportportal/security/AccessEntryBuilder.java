@@ -14,9 +14,9 @@ public class AccessEntryBuilder {
 
     public static Collection<IllegalUserAccessEntry> createAccessEntries(OAuthHelper oauthHelper) {
         List<IllegalUserAccessEntry> entries = new ArrayList<>(
-                IllegalUserAccessStatus.values().length);
+                IllegalUserProfile.values().length);
 
-        for (IllegalUserAccessStatus accessStatus : IllegalUserAccessStatus.values()) {
+        for (IllegalUserProfile accessStatus : IllegalUserProfile.values()) {
             switch (accessStatus) {
                 case ANONYM:
                     entries.add(new IllegalUserAccessEntry(

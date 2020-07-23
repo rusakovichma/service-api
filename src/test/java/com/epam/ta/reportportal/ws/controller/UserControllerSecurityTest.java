@@ -1,10 +1,9 @@
 package com.epam.ta.reportportal.ws.controller;
 
-import com.epam.ta.reportportal.entity.enums.ProjectAttributeEnum;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.entity.item.issue.IssueType;
-import com.epam.ta.reportportal.entity.project.Project;
-import com.epam.ta.reportportal.entity.project.ProjectIssueType;
+import com.epam.ta.reportportal.security.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
+import com.epam.ta.reportportal.security.IllegalUserProfile;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.epam.ta.reportportal.ws.model.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,19 +14,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
 
-import static com.epam.ta.reportportal.commons.EntityUtils.normalizeId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql("/db/user/user-fill.sql")
+@Sql({"/db/user/user-fill.sql", "/db/security/authorization_verification.sql"})
 public class UserControllerSecurityTest extends BaseMvcTest {
 
     @Autowired
@@ -160,6 +157,49 @@ public class UserControllerSecurityTest extends BaseMvcTest {
                 .andReturn();
 
         assertFalse(mvcResult.getResponse().getStatus() == HttpStatus.CREATED.value());
+    }
+
+    private ChangePasswordRQ createChangePasswordRQSample(String password) {
+        ChangePasswordRQ rq = new ChangePasswordRQ();
+        rq.setOldPassword("1q2w3e");
+        rq.setNewPassword(password);
+        return rq;
+    }
+
+    @Test
+    void changePasswordWeakPasswordTest() throws Exception {
+        final String weakPassword = "1111";
+        ChangePasswordRQ rq = createChangePasswordRQSample(weakPassword);
+
+        MvcResult mvcResult = mockMvc.perform(post("/v1/user/password/change")
+                .with(token(oAuthHelper.getDefaultToken()))
+                .content(objectMapper.writeValueAsBytes(rq))
+                .contentType(APPLICATION_JSON))
+                .andReturn();
+
+        assertFalse(mvcResult.getResponse().getStatus() == HttpStatus.OK.value());
+    }
+
+    @Test
+    void getUserProjectsAuthorizationTest() throws Exception {
+        EnumSet<IllegalUserProfile> profilesToTest = EnumSet.of(
+                IllegalUserProfile.ANONYM,
+                IllegalUserProfile.ANOTHER_PROJECT_CUSTOMER,
+                IllegalUserProfile.ANOTHER_PROJECT_MEMBER);
+
+        AccessEntryBuilder.createAccessEntries(oAuthHelper)
+                .stream()
+                .filter(entry -> profilesToTest.contains(entry.getIllegalUserType()))
+                .forEach(entry -> {
+                    try {
+                        mockMvc.perform(get("/v1/user/default/projects")
+                                .with(token(entry.getAccessToken())))
+                                .andExpect(status().is(entry.getAccessStatus()));
+                    } catch (Exception ex) {
+                        throw new IllegalStateException(ex);
+                    }
+                })
+        ;
     }
 
 

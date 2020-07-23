@@ -1,6 +1,6 @@
 package com.epam.ta.reportportal.security;
 
-public enum IllegalUserAccessStatus {
+public enum IllegalUserProfile {
     ANONYM(401),
     ANOTHER_PROJECT_CUSTOMER(403),
     ANOTHER_PROJECT_MEMBER(403),
@@ -8,7 +8,7 @@ public enum IllegalUserAccessStatus {
 
     private int status;
 
-    IllegalUserAccessStatus(int status) {
+    IllegalUserProfile(int status) {
         this.status = status;
     }
 

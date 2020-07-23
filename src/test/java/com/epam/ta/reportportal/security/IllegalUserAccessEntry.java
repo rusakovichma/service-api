@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 
 public class IllegalUserAccessEntry {
 
-    private final IllegalUserAccessStatus illegalUserType;
+    private final IllegalUserProfile illegalUserType;
     private final String accessToken;
     private final int accessStatus;
 
-    public IllegalUserAccessEntry(IllegalUserAccessStatus illegalUserType, String accessToken, HttpStatus accessStatus) {
+    public IllegalUserAccessEntry(IllegalUserProfile illegalUserType, String accessToken, HttpStatus accessStatus) {
         this.illegalUserType = illegalUserType;
         this.accessToken = accessToken;
         this.accessStatus = accessStatus.value();
@@ -22,7 +22,7 @@ public class IllegalUserAccessEntry {
         return accessStatus;
     }
 
-    public IllegalUserAccessStatus getIllegalUserType() {
+    public IllegalUserProfile getIllegalUserType() {
         return illegalUserType;
     }
 }
