@@ -1,4 +1,4 @@
-package com.epam.ta.reportportal.security;
+package com.epam.ta.reportportal.security.authorization;
 
 import org.springframework.http.HttpStatus;
 
@@ -24,5 +24,13 @@ public class IllegalUserAccessEntry {
 
     public IllegalUserProfile getIllegalUserType() {
         return illegalUserType;
+    }
+
+    @Override
+    public String toString() {
+        return "IllegalUserAccessEntry{" +
+                "illegalUserType=" + illegalUserType +
+                ", accessStatus=" + accessStatus +
+                '}';
     }
 }

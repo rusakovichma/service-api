@@ -1,7 +1,7 @@
 package com.epam.ta.reportportal.ws.controller;
 
-import com.epam.ta.reportportal.security.AccessEntryBuilder;
-import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
+import com.epam.ta.reportportal.security.authorization.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.authorization.IllegalUserAccessEntry;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.epam.ta.reportportal.ws.model.integration.IntegrationRQ;
 import com.fasterxml.jackson.databind.ObjectMapper;

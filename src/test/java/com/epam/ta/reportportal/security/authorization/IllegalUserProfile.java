@@ -1,4 +1,4 @@
-package com.epam.ta.reportportal.security;
+package com.epam.ta.reportportal.security.authorization;
 
 public enum IllegalUserProfile {
     ANONYM(401),

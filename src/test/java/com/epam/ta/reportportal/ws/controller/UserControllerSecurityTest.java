@@ -1,12 +1,12 @@
 package com.epam.ta.reportportal.ws.controller;
 
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.security.*;
+import com.epam.ta.reportportal.security.authorization.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.authorization.IllegalUserProfile;
+import com.epam.ta.reportportal.security.injection.InjectionPayloadsCompositeReader;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
-import com.epam.ta.reportportal.ws.model.Page;
 import com.epam.ta.reportportal.ws.model.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;

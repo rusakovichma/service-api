@@ -1,10 +1,10 @@
 package com.epam.ta.reportportal.ws.controller;
 
 import com.epam.ta.reportportal.dao.ProjectRepository;
-import com.epam.ta.reportportal.security.AccessEntryBuilder;
-import com.epam.ta.reportportal.security.GenericInjectionPayloadsReader;
-import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
-import com.epam.ta.reportportal.security.PostgreInjectionPayloadsReader;
+import com.epam.ta.reportportal.security.authorization.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.injection.GenericInjectionPayloadsReader;
+import com.epam.ta.reportportal.security.authorization.IllegalUserAccessEntry;
+import com.epam.ta.reportportal.security.injection.PostgreInjectionPayloadsReader;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.http.client.Client;

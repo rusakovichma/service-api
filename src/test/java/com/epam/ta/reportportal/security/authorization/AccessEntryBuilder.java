@@ -1,4 +1,4 @@
-package com.epam.ta.reportportal.security;
+package com.epam.ta.reportportal.security.authorization;
 
 import com.epam.ta.reportportal.auth.OAuthHelper;
 import org.springframework.http.HttpStatus;

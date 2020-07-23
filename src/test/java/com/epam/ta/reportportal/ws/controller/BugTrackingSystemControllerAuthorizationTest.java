@@ -2,8 +2,8 @@ package com.epam.ta.reportportal.ws.controller;
 
 import com.epam.reportportal.extension.bugtracking.BtsExtension;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.security.AccessEntryBuilder;
-import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
+import com.epam.ta.reportportal.security.authorization.AccessEntryBuilder;
+import com.epam.ta.reportportal.security.authorization.IllegalUserAccessEntry;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.epam.ta.reportportal.ws.model.externalsystem.*;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.epam.ta.reportportal.security;
+package com.epam.ta.reportportal.security.injection;
 
 import com.epam.ta.reportportal.util.ClassPathUtil;
 
