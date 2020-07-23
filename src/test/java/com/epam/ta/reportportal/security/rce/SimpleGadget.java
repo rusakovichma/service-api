@@ -1,4 +1,4 @@
-package com.epam.ta.reportportal.auth;
+package com.epam.ta.reportportal.security.rce;
 
 import java.io.IOException;
 import java.io.Serializable;
