@@ -50,6 +50,13 @@ public class ProjectControllerSecurityTest extends BaseMvcTest {
     }
 
     @Test
+    void getProjectUsersCustomerAuthorizationTest() throws Exception {
+        mockMvc.perform(get("/v1/project/test_project/users")
+                .with(token(oAuthHelper.getProject2CustomerToken())))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void searchForUsernameGenericInjectionTest() throws Exception {
         for (final String injectionPayload : new GenericInjectionPayloadsReader()) {
             final MvcResult result = mockMvc.perform(get(
