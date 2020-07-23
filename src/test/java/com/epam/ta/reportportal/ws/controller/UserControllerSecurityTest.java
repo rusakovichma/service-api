@@ -1,20 +1,23 @@
 package com.epam.ta.reportportal.ws.controller;
 
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.security.AccessEntryBuilder;
-import com.epam.ta.reportportal.security.IllegalUserAccessEntry;
-import com.epam.ta.reportportal.security.IllegalUserProfile;
+import com.epam.ta.reportportal.security.*;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
+import com.epam.ta.reportportal.ws.model.Page;
 import com.epam.ta.reportportal.ws.model.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -200,6 +203,37 @@ public class UserControllerSecurityTest extends BaseMvcTest {
                     }
                 })
         ;
+    }
+
+    @Test
+    void findUsersInjectionTest() throws Exception {
+        for (final String injectionPayload : new InjectionPayloadsCompositeReader()) {
+            final MvcResult result =
+                    mockMvc.perform(get("/v1/user/search?term=" + injectionPayload)
+                            .with(token(oAuthHelper.getSuperadminToken())))
+                            .andReturn();
+
+            final MockHttpServletResponse response = result.getResponse();
+
+            String[] payloadsToExclude = {"SLEEP", "#"};
+            final List<String> payloadsToExcludeList = Arrays.asList(payloadsToExclude);
+
+            boolean exclude = false;
+            for (String excluded : payloadsToExcludeList) {
+                if (injectionPayload.strip().startsWith(excluded) || injectionPayload.contains(excluded)) {
+                    exclude = true;
+                }
+            }
+
+            if (!exclude) {
+                assertTrue(response.getContentAsString().contains("\"content\":[]"),
+                        String.format("Response: [%s], Payload: [%s]",
+                                response.getContentAsString(),
+                                injectionPayload
+                        ));
+            }
+
+        }
     }
 
 
