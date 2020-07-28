@@ -8,6 +8,7 @@ import com.epam.ta.reportportal.entity.enums.StatusEnum;
 import com.epam.ta.reportportal.entity.launch.Launch;
 import com.epam.ta.reportportal.security.authorization.AccessEntryBuilder;
 import com.epam.ta.reportportal.security.authorization.IllegalUserAccessEntry;
+import com.epam.ta.reportportal.security.authorization.IllegalUserProfile;
 import com.epam.ta.reportportal.ws.BaseMvcTest;
 import com.epam.ta.reportportal.ws.model.BulkInfoUpdateRQ;
 import com.epam.ta.reportportal.ws.model.BulkRQ;
@@ -24,7 +25,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -36,6 +39,7 @@ import static com.epam.ta.reportportal.commons.querygen.constant.GeneralCriteria
 import static com.epam.ta.reportportal.ws.model.launch.Mode.DEBUG;
 import static com.epam.ta.reportportal.ws.model.launch.Mode.DEFAULT;
 import static java.util.stream.Collectors.toMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -344,10 +348,19 @@ public class LaunchControllerAuthorizationTest extends BaseMvcTest {
 
     @Test
     void exportAuthorization() throws Exception {
+        IllegalUserAccessEntry anotherProjectCustomer = AccessEntryBuilder.getAccessEntry(IllegalUserProfile.ANOTHER_PROJECT_CUSTOMER, oAuthHelper);
+        mockMvc.perform(get(DEFAULT_PROJECT_BASE_URL + "/launch/4/report")
+                .with(token(anotherProjectCustomer.getAccessToken())))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+
         for (IllegalUserAccessEntry entry : AccessEntryBuilder.createAccessEntries(oAuthHelper)) {
-            mockMvc.perform(get(DEFAULT_PROJECT_BASE_URL + "/launch/1/report")
+            MvcResult result = mockMvc.perform(get(DEFAULT_PROJECT_BASE_URL + "/launch/1/report")
                     .with(token(entry.getAccessToken())))
-                    .andExpect(status().is(entry.getAccessStatus()));
+                    .andReturn();
+
+            assertEquals(entry.getAccessStatus(), result.getResponse().getStatus(),
+                    String.format("Project launch Access violation for user %s",
+                            entry.getIllegalUserType().toString()));
         }
     }
 
