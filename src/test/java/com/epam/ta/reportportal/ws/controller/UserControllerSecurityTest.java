@@ -34,7 +34,7 @@ public class UserControllerSecurityTest extends BaseMvcTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void restorePasswordXForwardedHostHeaderInjection() throws Exception {
+    void restorePasswordPoisoning() throws Exception {
         final RestorePasswordRQ restorePasswordRQ = new RestorePasswordRQ();
         restorePasswordRQ.setEmail("defaultemail@domain.com");
 
